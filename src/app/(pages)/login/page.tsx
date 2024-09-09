@@ -54,12 +54,12 @@ export default function Login() {
   return (
     <>
       <div className=" bg-[#F9F9F9]">
-        <div className=" flex md:items-center h-screen  container ">
+        <div className=" flex md:items-center md:h-screen  container ">
           <div className="flex justify-between md:items-center md:flex-row flex-col md:gap-0 gap-4   w-full ">
             <div className=" ">
               <Lottie className="" animationData={registerAn} />{" "}
             </div>
-            <div className="w-full">
+            <div className="w-full ">
               <form className=" p-4" onSubmit={handleSubmit(onSubmit)}>
                 {renderForm}
 
