@@ -1,6 +1,6 @@
 "use client";
 import { axiosInstance } from "@/app/config/axiosInstanse";
-import { Post } from "@/app/Interface";
+import { IUser, Post } from "@/app/Interface";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
 
@@ -10,6 +10,9 @@ export interface IProps {
   allPosts: Post[];
   addLoad: boolean;
   singlePost: Post | null;
+  userData: IUser;
+  userload: boolean;
+  loadingImage: boolean;
 }
 
 const initialState: IProps = {
@@ -17,7 +20,14 @@ const initialState: IProps = {
   allPost: [],
   allPosts: [],
   addLoad: false,
+  loadingImage: false,
   singlePost: null,
+  userData: {
+    _id: "",
+    name: "",
+    photo: "",
+  },
+  userload: false,
 };
 export const getAllposts = createAsyncThunk(
   "post/getAllposts",
@@ -93,6 +103,29 @@ export const addPost = createAsyncThunk(
     }
   }
 );
+export const uploadImage = createAsyncThunk(
+  "post/uploadImage",
+  async (dataForm: FormData, thunlApi) => {
+    const { rejectWithValue } = thunlApi;
+    try {
+      const res = await axiosInstance.put("/users/upload-photo", dataForm, {
+        headers: {
+          token: localStorage.getItem("TokenRedux"),
+        },
+      });
+      console.log(res);
+      if (res.status === 200) {
+        toast.success("Image Upload Successfully", {
+          position: "bottom-center",
+          duration: 1500,
+        });
+      }
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
 
 export const deletePost = createAsyncThunk(
   "post/deletePost",
@@ -138,6 +171,23 @@ export const addComment = createAsyncThunk(
     }
   }
 );
+export const getDataUser = createAsyncThunk(
+  "post/getDataUser",
+  async (_, thunlApi) => {
+    const { rejectWithValue } = thunlApi;
+    try {
+      const { data } = await axiosInstance.get("/users/profile-data", {
+        headers: {
+          token: localStorage.getItem("TokenRedux"),
+        },
+      });
+      console.log(data.user);
+      return data.user;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
 export const PostSlice = createSlice({
   name: "post",
   initialState,
@@ -169,6 +219,19 @@ export const PostSlice = createSlice({
     });
     builder.addCase(addPost.fulfilled, (state) => {
       state.addLoad = false;
+    });
+    builder.addCase(uploadImage.pending, (state) => {
+      state.loadingImage = true;
+    });
+    builder.addCase(uploadImage.fulfilled, (state) => {
+      state.loadingImage = false;
+    });
+    builder.addCase(getDataUser.pending, (state) => {
+      state.userload = true;
+    });
+    builder.addCase(getDataUser.fulfilled, (state, action) => {
+      state.userload = false;
+      state.userData = action.payload;
     });
   },
 });

@@ -52,6 +52,9 @@ export interface IUser {
   _id: string;
   name: string;
   photo: string;
+  email?: string;
+  dateOfBirth?: string;
+  gender?: string;
 }
 export interface IComment {
   _id: string;
